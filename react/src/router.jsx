@@ -1,5 +1,6 @@
 import { Children } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import AuthLayout from "./components/AuthLayout";
 import DefaultLayout from "./components/DefultLayout";
 import GuestLayout from "./components/GuestLayout";
 import Error404 from "./views/404";
@@ -29,7 +30,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <GuestLayout />,
+    element: <AuthLayout />,
     children: [
       {
         path: "/login",
