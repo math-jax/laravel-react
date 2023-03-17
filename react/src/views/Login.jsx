@@ -1,65 +1,108 @@
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axiosClient from "../axios-client";
+import { useStateContext } from "../contexts/ContextProvider";
 
 export default function Login() {
+  const emailRef = useRef();
+  const passwordRef = useRef();
+  const rememberRef = useRef();
+  const navigateTo = useNavigate();
+  const [errors, setErrors] = useState(null);
+
+  const { setUser, setToken } = useStateContext();
+
   const onSubmitLogin = (e) => {
     e.preventDefault();
-    debugger;
+    const payLoad = {
+      email: emailRef.current.value,
+      password: passwordRef.current.value,
+      remember: rememberRef.current.value,
+    };
+    const url = "/auth/login";
+    axiosClient
+      .post(url, payLoad)
+      .then(({ data }) => {
+        setUser(data.user);
+        setToken(data.token);
+        navigateTo('/');
+      })
+      .catch((err) => {
+        const response = err.response;
+        const errorMessage = response.data.errors;
+        if (response && response.status === 422) {
+          setErrors(errorMessage);
+        }
+      });
   };
 
   return (
-    <div class="card-body login-card-body">
-      <p class="login-box-msg">Sign in to start your session</p>
+    <div className="card">
+      {errors && (
+        <div className="card-header">
+          <div className="alert alert-danger" role="alert">
+            {Object.keys(errors).map((key) =>
+              Object.keys(errors[key]).map((arr) => (
+                <p key={key}>{errors[key][arr]}</p>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+      <div className="card-body login-card-body">
+        <p className="login-box-msg">Sign in to start your session</p>
 
-      <form onSubmit={onSubmitLogin}>
-        <div class="input-group mb-3">
-          <input type="email" class="form-control" placeholder="Email" />
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-envelope"></span>
+        <form onSubmit={onSubmitLogin}>
+          <div className="input-group mb-3">
+            <input
+              type="email"
+              className="form-control"
+              placeholder="Email"
+              ref={emailRef}
+            />
+            <div className="input-group-append">
+              <div className="input-group-text">
+                <span className="fas fa-envelope"></span>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="input-group mb-3">
-          <input type="password" class="form-control" placeholder="Password" />
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-lock"></span>
+          <div className="input-group mb-3">
+            <input
+              type="password"
+              className="form-control"
+              placeholder="Password"
+              ref={passwordRef}
+            />
+            <div className="input-group-append">
+              <div className="input-group-text">
+                <span className="fas fa-lock"></span>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-8">
-            <div class="icheck-primary">
-              <input type="checkbox" id="remember" />
-              <label for="remember">Remember Me</label>
+          <div className="row">
+            <div className="col-8">
+              <div className="icheck-primary">
+                <input type="checkbox" id="remember" ref={rememberRef} />
+                <label htmlFor="remember">Remember Me</label>
+              </div>
+            </div>
+            <div className="col-4">
+              <button type="submit" className="btn btn-primary btn-block">
+                Sign In
+              </button>
             </div>
           </div>
-          <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block">
-              Sign In
-            </button>
-          </div>
-        </div>
-      </form>
+        </form>
 
-      <div class="social-auth-links text-center mb-3">
-        <p>- OR -</p>
-        <a href="#" class="btn btn-block btn-primary">
-          <i class="fab fa-facebook mr-2"></i> Sign in using Facebook
-        </a>
-        <a href="#" class="btn btn-block btn-danger">
-          <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
-        </a>
+        <p className="mb-1">
+          <a href="forgot-password.html">I forgot my password</a>
+        </p>
+        <p className="mb-0">
+          <Link to="/sign-up" className="text-center">
+            Register a new membership
+          </Link>
+        </p>
       </div>
-
-      <p class="mb-1">
-        <a href="forgot-password.html">I forgot my password</a>
-      </p>
-      <p class="mb-0">
-        <Link to="/sign-up" className="text-center">
-          Register a new membership
-        </Link>
-      </p>
     </div>
   );
 }

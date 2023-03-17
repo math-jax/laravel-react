@@ -5,6 +5,8 @@ const StateContext = createContext({
   token: null,
   setUser: () => {},
   setToken: () => {},
+  getToken: () => {},
+  removeToken: () => {}
 });
 
 // export default StateContext;
@@ -13,8 +15,7 @@ export const ContextProvider = ({ children }) => {
   const [user, setUser] = useState({
     name: 'Aashish Jha'
   });
-  // const [token, _setToken] = useState(localStorage.getItem("ACCESS_TOKEN"));
-  // const [token, _setToken] = useState(123);
+
   const [token, _setToken] = useState(null);
 
   const setToken = (token) => {
@@ -26,13 +27,31 @@ export const ContextProvider = ({ children }) => {
     }
   };
 
+  const getToken = () => {
+    const token = localStorage.getItem("ACCESS_TOKEN");
+    if (!token) {
+      localStorage.removeItem("ACCESS_TOKEN");
+    }
+    return token;
+  };
+
+  const removeToken = () => {
+    const token = localStorage.getItem("ACCESS_TOKEN");
+    if (token) {
+      localStorage.removeItem("ACCESS_TOKEN");
+    }
+  };
+
+
   return (
     <StateContext.Provider
       value={{
         user,
         token,
         setUser,
-        setToken
+        setToken,
+        getToken,
+        removeToken
       }}
     >
       {children}
